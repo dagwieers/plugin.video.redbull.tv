@@ -1,6 +1,5 @@
-import sys, urlparse, urllib, time
+import sys, urllib.parse, urllib.request, urllib.parse, urllib.error, time, base64
 import xbmcgui, xbmcplugin, xbmcaddon, xbmc
-import web_pdb #web_pdb.set_trace()
 
 from resources.lib import utils
 from resources.lib import redbulltv_client as redbulltv
@@ -12,7 +11,7 @@ class RedbullTV(object):
         self.icon = self.addon.getAddonInfo('icon')
         self.base_url = sys.argv[0]
         self.addon_handle = int(sys.argv[1])
-        self.args = urlparse.parse_qs(sys.argv[2][1:])
+        self.args = urllib.parse.parse_qs(sys.argv[2][1:])
         xbmcplugin.setContent(self.addon_handle, 'videos')
         self.redbulltv_client = redbulltv.RedbullTVClient(self.addon.getSetting('video.resolution'))
         self.default_view_mode = 55 # Wide List
@@ -22,11 +21,11 @@ class RedbullTV(object):
         keyboard = xbmc.Keyboard(default, heading, hidden)
         keyboard.doModal()
         if keyboard.isConfirmed():
-            return str(urllib.quote_plus(keyboard.getText()))
+            return str(urllib.parse.quote_plus(keyboard.getText()))
         return default
 
     def navigation(self):
-        url = self.args.get("api_url")[0].decode('base64') if self.args.get("api_url") else None
+        url = base64.b64decode(self.args.get("api_url")[0]).decode() if self.args.get("api_url") else None
         is_stream = self.args.get('is_stream', [False])[0] == "True"
 
         if url and "search?q=" in url:
@@ -65,7 +64,7 @@ class RedbullTV(object):
     def add_items(self, items):
         for item in items:
             params = {
-                'api_url': item["url"].encode('base64'),
+                'api_url': base64.b64encode(item["url"].encode()).decode(),
                 }
 
             if "is_content" in item:

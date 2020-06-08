@@ -1,6 +1,5 @@
-import re, urllib2, os
+import re, urllib.request, urllib.error, urllib.parse, os
 import resources.lib.utils as utils
-import web_pdb #web_pdb.set_trace()
 
 class RedbullTVClient(object):
 
@@ -37,7 +36,7 @@ class RedbullTVClient(object):
         # Try find stream for specific resolution stream, if that failed will use the
         # playlist url passed in and kodi will choose a stream
         try:
-            response = urllib2.urlopen(url)
+            response = urllib.request.urlopen(url)
             # Required to get base url in case of a redirect, to use for relative paths
             base_url = response.geturl()
             playlists = response.read()
@@ -118,7 +117,6 @@ class RedbullTVClient(object):
         details["subheading"] = element.get("subheading")
         details["summary"] = element.get("long_description") if element.get("long_description") and len(element.get("long_description")) > 0 else element.get("short_description")
         if element.get("resources"):
-            #web_pdb.set_trace()
             details["landscape"] = self.get_image_url(element.get("id"), element.get("resources"), "landscape")
             details["fanart"] = self.get_image_url(element.get("id"), element.get("resources"), "landscape")
             details["banner"] = self.get_image_url(element.get("id"), element.get("resources"), "banner")
@@ -126,7 +124,7 @@ class RedbullTVClient(object):
             details["poster"] = self.get_image_url(element.get("id"), element.get("resources"), "poster")
 
         # Strip out any keys with empty values
-        return {k:v for k, v in details.iteritems() if v is not None}
+        return {k:v for k, v in details.items() if v is not None}
 
     def get_items(self, url=None, page=1, limit=20):
 
